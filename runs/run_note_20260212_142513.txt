@@ -9,3 +9,4 @@
 
 Run Note (20260212_2050)
 - parquet file de embeddings subido tmb al drive due to >100MB limit en GitHub.
+- añadimos en gitignore el parquet file para que no de errores.
