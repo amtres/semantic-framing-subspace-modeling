@@ -198,5 +198,16 @@ LISBETH/
 └── README.md               # Este archivo
 ```
 
+## Data storage and backups
+
+- This project repository was cloned and published to a **private GitHub repository** to avoid losing progress.
+- We push and version-control **all project files except the large COVID broad dataset** outputs.
+- The **MH-strict dataset** is stored in this repository:
+  - `data/interim/datasets/spain_covidMHstrict_2020-03_2021-03_ALL.txt`
+- The **COVID broad (ALL) dataset** is **not pushed to GitHub** (large files). It is backed up as a ZIP in **Google Drive** (TFG data backup folder).
+
+Notes:
+- Large harvesting outputs are ignored via `.gitignore` to prevent GitHub push issues (>100MB).
+
 ---
 **Lisbeth v2.0 - Enero 2026**
