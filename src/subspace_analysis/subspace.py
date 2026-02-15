@@ -216,7 +216,7 @@ class KSelector:
 
             # CÓDIGO NUEVO (ROBUSTO)
             # Usamos scipy con el driver 'gesvd' que NUNCA falla por convergencia
-            _, s_boot, _ = scipy.linalg.svd(X_boot, full_matrices=False, lapack_driver='gesvd')
+            _, s_boot, _ = scipy.linalg.svd(X_boot, full_matrices=False, lapack_driver='gesdd')
             e_boot = (s_boot ** 2) / (n - 1)
             
             k_b = 0
