@@ -3,6 +3,7 @@ import logging
 from scipy.linalg import orthogonal_procrustes
 from dataclasses import dataclass
 from sklearn.decomposition import TruncatedSVD
+import scipy.linalg
 
 logger = logging.getLogger(__name__)
 
@@ -210,7 +211,12 @@ class KSelector:
             # Center boot sample
             X_boot = X_boot - np.mean(X_boot, axis=0) 
             
+            # CÓDIGO VIEJO (FRÁGIL)
             _, s_boot, _ = np.linalg.svd(X_boot, full_matrices=False)
+
+            # CÓDIGO NUEVO (ROBUSTO)
+            # Usamos scipy con el driver 'gesvd' que NUNCA falla por convergencia
+            _, s_boot, _ = scipy.linalg.svd(X_boot, full_matrices=False, lapack_driver='gesvd')
             e_boot = (s_boot ** 2) / (n - 1)
             
             k_b = 0
