@@ -216,7 +216,24 @@ class KSelector:
 
             # CÓDIGO NUEVO (ROBUSTO)
             # Usamos scipy con el driver 'gesvd' que NUNCA falla por convergencia
-            _, s_boot, _ = scipy.linalg.svd(X_boot, full_matrices=False, lapack_driver='gesdd')
+            # _, s_boot, _ = scipy.linalg.svd(X_boot, full_matrices=False, lapack_driver='gesdd')
+            
+            # --- BLOQUE HÍBRIDO (VELOCIDAD + SEGURIDAD) ---
+            try:
+                # 1. Intentamos el modo RÁPIDO (gesdd)
+                _, s_boot, _ = scipy.linalg.svd(X_boot, full_matrices=False, lapack_driver='gesdd')
+            except Exception as e:
+                # 2. Si falla (LinAlgError), activamos el modo TANQUE (gesvd)
+                # Esto solo pasará en la ventana 7 u otras difíciles.
+                print(f"   ⚠️ SVD rápido falló ({e}). Activando modo robusto (gesvd)...")
+                try:
+                    _, s_boot, _ = scipy.linalg.svd(X_boot, full_matrices=False, lapack_driver='gesvd')
+                except Exception as e2:
+                     # 3. Medida desesperada: Limpieza de nan/inf por si acaso
+                    print(f"   ⚠️ SVD robusto también falló. Limpiando matriz y reintentando...")
+                    X_boot = np.nan_to_num(X_boot)
+                    _, s_boot, _ = scipy.linalg.svd(X_boot, full_matrices=False, lapack_driver='gesvd')
+            
             e_boot = (s_boot ** 2) / (n - 1)
             
             k_b = 0
