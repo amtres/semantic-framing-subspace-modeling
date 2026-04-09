@@ -34,7 +34,7 @@ def _parse_iso_date(value: str) -> dt.date:
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="news_harvester",
-        description="Herramientas para recolectar noticias peruanas.",
+        description="Herramientas para recolectar noticias.",
     )
     subparsers = parser.add_subparsers(dest="command")
 
@@ -92,9 +92,9 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     harvest_parser.add_argument(
         "--keyword",
-        default=["Yape"],
+        required=True,
         nargs="+",
-        help="Palabra(s) clave a buscar (por defecto: Yape).",
+        help="Palabra(s) clave a buscar.",
     )
     harvest_parser.add_argument(
         "--from",

@@ -54,7 +54,7 @@ def prepare_corpus(input_file: str, output_file: str):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", default="data/raw/Yape_19_23.csv", help="Input CSV file")
+    parser.add_argument("--input", required=True, help="Input CSV file")
     parser.add_argument("--output", default="data/corpus_phase2.txt", help="Output txt file")
     args = parser.parse_args()
     

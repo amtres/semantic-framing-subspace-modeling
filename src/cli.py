@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def main():
-    parser = argparse.ArgumentParser(description="Lisbeth NLP CLI")
+    parser = argparse.ArgumentParser(description="NLP CLI — Embedding extraction, DAPT, and anchor generation")
     subparsers = parser.add_subparsers(dest="command", help="Available commands", required=True)
     
     # --- DAPT Command ---
@@ -30,7 +30,7 @@ def main():
     extract_parser = subparsers.add_parser("extract", help="Extract contextual embeddings")
     extract_parser.add_argument("--data_dir", required=True, help="Directory with CSV files")
     extract_parser.add_argument("--output", required=True, help="Output Parquet/CSV file")
-    extract_parser.add_argument("--keywords", nargs="+", default=["Yape"], help="List of keywords (Ignored in Phase 2 pipeline)")
+    extract_parser.add_argument("--keywords", nargs="+", required=True, help="List of keywords to extract")
     extract_parser.add_argument("--model", default="PlanTL-GOB-ES/roberta-large-bne", help="Baseline Model")
     extract_parser.add_argument("--dapt_model", default=None, help="DAPT Model path (optional)")
     # New flags for Phase 2 comparison

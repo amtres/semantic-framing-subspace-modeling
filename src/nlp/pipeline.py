@@ -14,11 +14,8 @@ class OccurrenceExpander:
     """
     Step 1: Transforms document-level data into occurrence-level data.
     """
-    CANONICAL_KEYWORD = "yape"
-    KEYWORDS = [
-        "Yape", "Yapear", "Yapeo", "Yapeando", "Yapeas", "Yapea", "Yapean",
-        "Yapeé", "Yapeó", "Yapeado", "Yapeame", "Yapearte", "Yapearon", "Yapearía"
-    ]
+    CANONICAL_KEYWORD = None  # Set by caller via --keywords CLI arg
+    KEYWORDS = []  # Populated at runtime from CLI arguments
 
     def __init__(self, keywords: List[str] = None):
         if keywords:
@@ -68,8 +65,7 @@ class OccurrenceExpander:
             
             for cand in candidates:
                 # Check if any char in this candidate is already covered
-                # This is aggressive: if "Yapear" is taken, "Yape" at same start is skipped.
-                # If "Yape" is at overlap?
+                # This is aggressive: if a longer match is taken, a shorter keyword at the same start is skipped.
                 # Using a set of indices is robust.
                 
                 is_covered = False

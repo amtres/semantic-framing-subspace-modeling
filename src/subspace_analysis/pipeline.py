@@ -164,7 +164,7 @@ class Phase3Orchestrator:
                         # AnchorMap: Raw anchors (orthogonalized). 
                         # For "Corrected", we technically project the Corrected Centroid onto the Raw Anchors?
                         # Or should we project Corrected Centroid onto Corrected Anchors?
-                        # Standard practice: Keep Anchors fixed as Reference Frame. Correct the signal (Yape).
+                        # Standard practice: Keep Anchors fixed as Reference Frame. Correct the signal (target concept).
                         anchor_map, _ = metric_calc.load_anchors(variant, strategy, condition=condition)
                         
                         # Project Centroid

@@ -23,19 +23,19 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("pipeline_manager")
 
 def main():
-    parser = argparse.ArgumentParser(description="Lisbeth Master Pipeline")
+    parser = argparse.ArgumentParser(description="Master Pipeline Manager")
     subparsers = parser.add_subparsers(dest="phase", help="Pipeline Phase", required=True)
     
     # --- PHASE 1: HARVEST ---
     p1 = subparsers.add_parser("phase1", help="News Harvester")
-    p1.add_argument("--keyword", nargs="+", default=["Yape"], help="Keywords")
+    p1.add_argument("--keyword", nargs="+", required=True, help="Keywords")
     p1.add_argument("--from", dest="date_from", required=True, help="YYYY-MM-DD")
     p1.add_argument("--to", dest="date_to", required=True, help="YYYY-MM-DD")
     p1.add_argument("--media-list", type=Path, help="Path to media CSV")
     p1.add_argument("--output", type=Path, help="Output file")
     p1.add_argument("--sources", nargs="+", default=["gdelt"], choices=["gdelt", "google", "rss"])
     p1.add_argument("--no-download", dest="download_html", action="store_false", help="Skip HTML download (Metadata only)")
-    p1.add_argument("--country", default=None, help="GDELT Country Code (default: PE)")
+    p1.add_argument("--country", default=None, help="GDELT Country Code (e.g. SP, PE, US)")
     p1.set_defaults(download_html=True)
     
     # --- PHASE 2: NLP ---
@@ -59,7 +59,7 @@ def main():
     p2_ext.add_argument("--output", required=True, help="Output Parquet")
     p2_ext.add_argument("--dapt_model", required=True, help="Path to DAPT model")
     p2_ext.add_argument("--model", default="PlanTL-GOB-ES/roberta-large-bne", help="Baseline Model")
-    p2_ext.add_argument("--keywords", nargs="+", default=["Yape"], help="Keywords to extract")
+    p2_ext.add_argument("--keywords", nargs="+", required=True, help="Keywords to extract")
     
     # Anchors
     p2_anc = p2_subs.add_parser("anchors", help="Build Anchors")
@@ -238,7 +238,7 @@ def main():
              Phase3Config.MANIFESTS_DIR = Phase3Config.ARTIFACTS_DIR / "manifests"
              Phase3Config.OUTPUT_CSV = out_path / "phase3_results.csv"
              Phase3Config.INPUT_CSV = Path(args.input)
-             # Force low threshold for small test batches (Yape 2020 has few records)
+             # Force low threshold for small test batches
              Phase3Config.N_MIN_OCCURRENCES = 1
              # Phase3Config.WINDOW_MONTHS = 1 # Verification: Allow single month window
              # Phase3Config.MIN_WINDOWS = 1 # Verification: Allow single window result

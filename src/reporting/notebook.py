@@ -27,9 +27,8 @@ def create_notebook(notebook_path, assets_dir_rel, csv_path_rel):
     # Section 0: Title and Intro
     cells = []
     cells.append(nbf.v4.new_markdown_cell("""
-# Reporte de Resultados - Fase 4: Análisis Metodológico de Yape
-**Proyecto**: Lisbeth: De la Billetera Móvil al Actor Social
-**Fecha**: Diciembre 2025
+# Reporte de Resultados - Fase 4: Análisis Metodológico
+**Proyecto**: TFG — Análisis de Enmarcado Mediático mediante Subespacios Semánticos
 
 Este notebook consolida los resultados cuantitativos y visuales obtenidos tras la ejecución del pipeline matemático de la Fase 3 y la interpretación de la Fase 4.
 """))
@@ -38,8 +37,8 @@ Este notebook consolida los resultados cuantitativos y visuales obtenidos tras l
     cells.append(nbf.v4.new_markdown_cell("""
 ## 1. Resumen Metodológico
 El análisis se basa en:
-*   **Modelo**: `roberta-large-bne` + DAPT (Adaptación al dominio peruano).
-*   **Embeddings**: Concatenación de últimas 4 capas.
+*   **Modelo**: BETO (`bert-base-spanish-wwm-uncased`) + DAPT (Adaptación al dominio).
+*   **Embeddings**: Capa penúltima (principal) y concatenación de últimas 4 capas.
 *   **Subespacios**: SVD dinámica sobre ventanas deslizantes.
 *   **Métricas**: Deriva Semántica (Grassmannian), Entropía y Proyección Ortogonal sobre Anclas.
 """))

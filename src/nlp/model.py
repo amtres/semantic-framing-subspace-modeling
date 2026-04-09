@@ -67,7 +67,7 @@ class LisbethModel:
         # Lowercase text for matching (if model is cased, we still want to match varied casing if requested)
         # However, it's safer to tokenize the keyword and look for that sequence of IDs.
         # But casing mismatches between query and text are tricky if the tokenizer is case-sensitive (RoBERTa-BNE IS case-sensitive).
-        # Strategy: We rely on the caller to provide variants (Yape, yape, YAPE). 
+        # Strategy: We rely on the caller to provide case variants of each keyword. 
         # OR better: We rely on string finding in the original text, then map to tokens.
         
         occurrences = []

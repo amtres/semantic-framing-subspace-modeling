@@ -59,7 +59,7 @@ def _handle_date_axis(ax, df, date_col, categorical=True):
         plt.xticks(rotation=45)
         return df[date_col], None
 
-def plot_news_volume(df, date_col='date', count_col='volumen_yape', output_path=None):
+def plot_news_volume(df, date_col='date', count_col='volume', output_path=None):
     """Plots bar chart of news article volume per temporal window."""
     setup_pub_style()
     fig, ax = plt.subplots(figsize=(12, 5))
