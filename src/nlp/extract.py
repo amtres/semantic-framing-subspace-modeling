@@ -3,7 +3,7 @@ import os
 import glob
 import pandas as pd
 import logging
-from src.nlp.model import LisbethModel
+from src.nlp.model import SemanticModel
 
 
 from src.nlp.pipeline import PipelineOrchestrator

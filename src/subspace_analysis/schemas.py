@@ -22,7 +22,7 @@ class Phase3Config:
     CENTERING = True  # Only for subspaces
     
     # Paths (Dynamic via Env)
-    BASE_OUTPUT_DIR = pathlib.Path(os.getenv("LISBETH_PHASE3_OUTPUT_DIR", "data/phase3"))
+    BASE_OUTPUT_DIR = pathlib.Path(os.getenv("TFG_PHASE3_OUTPUT_DIR", "data/phase3"))
     ARTIFACTS_DIR = BASE_OUTPUT_DIR / "artifacts"
     ANCHORS_DIR = ARTIFACTS_DIR / "anchors"
     SUBSPACES_DIR = ARTIFACTS_DIR / "subspaces"
@@ -30,8 +30,8 @@ class Phase3Config:
     
     OUTPUT_CSV = BASE_OUTPUT_DIR / "phase3_results.csv"
     
-    INPUT_CSV = pathlib.Path(os.getenv("LISBETH_PHASE3_INPUT_CSV", "data/phase2/embeddings_occurrences.csv"))
-    ANCHOR_DEF_JSON = pathlib.Path(os.getenv("LISBETH_PHASE3_ANCHORS_JSON", "data/dimensiones_ancla.json"))
+    INPUT_CSV = pathlib.Path(os.getenv("TFG_PHASE3_INPUT_CSV", "data/phase2/embeddings_occurrences.csv"))
+    ANCHOR_DEF_JSON = pathlib.Path(os.getenv("TFG_PHASE3_ANCHORS_JSON", "data/dimensiones_ancla.json"))
     
     # Model Paths
     DAPT_MODEL_PATH = "models/beto-adapted"

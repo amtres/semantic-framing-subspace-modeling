@@ -1,4 +1,4 @@
-"""Modelos de datos estructurados para Lisbeth."""
+"""Modelos de datos estructurados para News Harvester."""
 
 from __future__ import annotations
 

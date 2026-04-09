@@ -7,7 +7,7 @@ from typing import List, Dict, Optional, Tuple, Union
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class LisbethModel:
+class SemanticModel:
     MODEL_REGISTRY = {
         "gov_roberta": "PlanTL-GOB-ES/roberta-large-bne",
         "beto": "dccuchile/bert-base-spanish-wwm-uncased"

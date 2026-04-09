@@ -177,7 +177,7 @@ def main():
         logger.info("Running Phase 3 Orchestrator...")
         
         # Set Environment Variables for Configuration Override
-        os.environ["LISBETH_PHASE3_INPUT_CSV"] = str(args.input)
+        os.environ["TFG_PHASE3_INPUT_CSV"] = str(args.input)
         
         # If output file is specified, we need to handle it.
         # But Phase 3 config takes a BASE_OUTPUT_DIR and creates multiple files.
@@ -197,7 +197,7 @@ def main():
         # Validate Output Dir
         if "output_dir" in args and args.output_dir:
              out_path = Path(args.output_dir)
-             os.environ["LISBETH_PHASE3_OUTPUT_DIR"] = str(out_path)
+             os.environ["TFG_PHASE3_OUTPUT_DIR"] = str(out_path)
              
              # Runtime Patching of Config (since module is already imported)
              from src.subspace_analysis.schemas import Phase3Config

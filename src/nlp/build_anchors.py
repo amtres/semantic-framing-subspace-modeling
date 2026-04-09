@@ -3,7 +3,7 @@ import json
 import pandas as pd
 import logging
 import os
-from src.nlp.model import LisbethModel
+from src.nlp.model import SemanticModel
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ def build_anchors(json_path: str, output_file: str, model_name: str):
     
     anchors_list = []
     
-    model = LisbethModel(model_name=model_name)
+    model = SemanticModel(model_name=model_name)
     
     # Parsing logic: iterate keys as dimensions
     for dimension, items in data.items():

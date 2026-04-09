@@ -1,31 +1,91 @@
-# 3. Marco Matemático: Subespacios y Ortogonalidad
+# Mathematical Framework
 
-Para modelar la "identidad" de Yape no como un punto estático, sino como un constructo dinámico multidimensional, se formalizó el siguiente pipeline algebraico.
+## Overview
 
-## 3.1 Definición de Subespacios (SVD)
+To model the evolution of mental health discourse as a dynamic, multidimensional construct, the following algebraic pipeline was formalized. This approach shifts from traditional single-point vector representations to **semantic subspaces**, enabling the capture of structural shifts in meaning.
 
-Sea $X_t \in \mathbb{R}^{n \times d}$ la matriz de embeddings de todas las $n$ ocurrencias de la marca en la ventana de tiempo $t$. Centramos los datos restando la media $\mu_t$.
-Aplicamos **Descomposición en Valores Singulares (SVD)**:
-$$ X_t = U \Sigma V^T $$
-El subespacio semántico $S_t$ está definido por los primeros $k$ vectores filas de $V^T$ (los componentes principales). Este subespacio captura las dimensiones de máxima varianza en el uso de la palabra clave.
+## Temporal Windowing
 
-## 3.2 Selección de Dimensionalidad ($k$)
+The dataset is aggregated using a **3-month rolling time window** with a **1-month sliding step**, producing **11 temporal windows**. A threshold of N>1,000 keyword occurrences ensures sufficient data density for robust SVD decomposition relative to BETO's dimensionality (d=768).
 
-No todas las dimensiones son informativas; muchas son ruido.
-Se empleó el **Análisis Paralelo de Horn**, comparando los autovalores de $X_t$ con los de una matriz de ruido aleatorio de igual tamaño. Se retienen solo las dimensiones donde $\lambda_{obs} > \lambda_{ruido}$. Típicamente, $k \in [3, 6]$.
+## Subspace Construction (SVD)
 
-## 3.3 Alineamiento Temporal (Procrustes Ortogonal)
+For each window *t*, an embedding matrix **X_t** ∈ ℝ^(n×d) is constructed from all keyword occurrences. Singular Value Decomposition (SVD) identifies the principal axes of variation:
 
-Los espacios latentes generados independientemente en $t$ y $t+1$ pueden estar rotados arbitrariamente. Para comparar $S_t$ con $S_{t+1}$, debemos alinearlos.
-Se busca la matriz de rotación ortogonal $Q$ que minimice la distancia entre los marcos de referencia:
-$$ \min_Q || S_{t+1} - S_t Q ||_F $$
-Esto permite calcular el **Semantic Drift** real, descartando rotaciones espurias.
+```
+X_t = U_t · Σ_t · V_t^T
+```
 
-## 3.4 Ortogonalización de Anclas (Gram-Schmidt)
+Where:
+- **U_t** contains left singular vectors (word positions — *who is involved*)
+- **Σ_t** contains singular values (pattern strength — *how much it matters*)
+- **V_t^T** contains right singular vectors forming an orthogonal basis (*where/when patterns cluster*)
 
-Para medir la proyección de la marca sobre conceptos sociopolíticos (Funcioanl, Afectivo y Social), definimos vectores ancla iniciales $a_1, a_2, a_3$.
-Para garantizar independencia estadística, aplicamos ortogonalización:
-1.  Norma $\hat{u}_1 = a_1$.
-2.  $\hat{u}_2 = a_2 - \text{proj}_{\hat{u}_1}(a_2)$.
-3.  Etc.
-Esto crea una base ortonormal sobre la cual se puede "radiografiar" la posición de la marca sin colinealidad.
+Each identified frame is statistically independent via orthogonality, allowing isolation of dimensions without overlap.
+
+### SVD Convergence Fix
+
+During Phase 3, a convergence failure occurred in window 7 (September–November 2020) using NumPy's default LAPACK driver (`gesdd`). A **hybrid fallback mechanism** was implemented:
+1. Try fast `gesdd` driver (~99% of cases)
+2. If `LinAlgError`, fallback to SciPy's numerically stable `gesvd` driver
+3. As a last resort, clean NaN/Inf values and retry
+
+This guarantees convergence for rectangular matrices where divide-and-conquer methods fail.
+
+## Framing Metrics
+
+### 1. Semantic Drift (Grassmannian Distance)
+
+Measures the rate of structural semantic change between consecutive windows:
+
+```
+d(S_t, S_{t+1}) = √(Σ sin²(θ_i))
+```
+
+Where θ_i are the principal angles between the orthonormal bases. Unlike cosine similarity on centroids, Grassmannian distance is invariant to orthogonal rotations, providing a theoretically founded comparison across time periods.
+
+### 2. Shannon Entropy
+
+Measures the concentration/ambiguity of discourse within each subspace:
+
+```
+H = -Σ p_i · log₂(p_i)
+```
+
+Where p_i are the normalized singular values. Higher entropy = more semantic ambiguity (many different contextual meanings). Lower entropy = convergence around a stable discourse.
+
+### 3. Intrinsic Dimensionality (k)
+
+The minimum number of principal components explaining meaningful variance, determined via **Horn's Parallel Analysis**:
+
+```
+k = max{i : λ_i > λ_i^random}
+```
+
+This separates meaningful discourse structure from linguistic noise by selecting only empirical eigenvalues that exceed those from a randomized baseline.
+
+### 4. Anchor Projections
+
+Subspaces are projected onto three theoretically predefined axes to quantify framing orientation:
+
+- **Affective**: Internal psychological states (anxiety, depression, fear, trauma)
+- **Social**: Interpersonal/community context (isolation, support, family dynamics)
+- **Functional**: Systemic/institutional aspects (healthcare, policy, resources)
+
+Two projection methods are computed:
+
+**Centroid Projection** (mean vector):
+```
+proj_centroid = cos(μ_t, a_D)
+```
+
+**Subspace Projection** (full orthonormal basis):
+```
+proj_subspace = ||A_D^T · U_t||_F
+```
+
+The subspace projection captures the "structural" alignment of the most energetic themes, unlike centroids which collapse all variation into a single point.
+
+## Anchor Definitions
+
+Anchors are defined in `data/metadata/anchors/dimensiones_ancla_mh_es_covid_FSA.json` with three dimensions (Functional, Social, Affective), each containing contextualized Spanish sentences grounding the semantic poles.

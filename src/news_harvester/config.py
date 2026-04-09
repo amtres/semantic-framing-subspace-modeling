@@ -69,4 +69,4 @@ class Settings(BaseSettings):
     output_dir: Path = Field(
         Path("data"), description="Directorio donde se guardarán los resultados."
     )
-    model_config = SettingsConfigDict(env_prefix="LISBETH_", case_sensitive=False)
+    model_config = SettingsConfigDict(env_prefix="TFG_", case_sensitive=False)

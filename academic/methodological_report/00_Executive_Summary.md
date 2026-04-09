@@ -1,16 +1,26 @@
-# 0. Resumen Ejecutivo (Executive Summary)
+# Executive Summary
 
-Este reporte metodológico documenta la implementación técnica y validación científica del sistema **Lisbeth**, diseñado para analizar la evolución de la representación mediática de **Yape** como un "Actor Social" en el ecosistema peruano (2019-2023).
+This methodological report documents the implementation and scientific validation of the semantic subspace modeling framework used to analyze the evolution of mental health media framing in the Spanish press during the COVID-19 pandemic (March 2020 – March 2021).
 
-## Objetivos Alcanzados
-1.  **Ingeniería de Datos Robusta**: Implementación de un pipeline de extracción tolerante a fallos (GDELT) con *Daily Chunking* y soporte para renderizado JS, logrando una cobertura temporal del 98% del periodo objetivo.
-2.  **Modelado Semántico Avanzado**: Desarrollo de un modelo de embeddings contextuales basado en `roberta-large-bne` con adaptación al dominio (DAPT), superando significativamente al baseline en la representación de la jerga local.
-3.  **Marco Matemático Validado**: Formalización de un pipeline algebraico (SVD $\to$ Procrustes $\to$ Gram-Schmidt) que garantiza la estabilidad y comparabilidad de los subespacios semánticos en el tiempo.
-4.  **Resultados Sociológicos**: Identificación cuantitativa de hitos de cambio semántico (*Drift*) correlacionados con eventos sociopolíticos (Pandemia, Bonos), confirmando la hipótesis de la "agencia semántica" de la marca.
+## Research Context
 
-## Estructura del Reporte
-*   **Sección 1: Ingeniería de Datos**: Detalles de adquisición y limpieza.
-*   **Sección 2: Arquitectura NLP**: Selección de modelo y estrategia DAPT.
-*   **Sección 3: Marco Matemático**: Definiciones formales.
-*   **Sección 4: Narrativa Visual**: Resultados gráficos (Drift, Entropía, Proyecciones).
-*   **Sección 5: Interpretación**: Análisis profundo y conclusiones.
+The COVID-19 pandemic disrupted mental health services in 93% of countries worldwide (WHO, 2020). In Spain, self-reported depression increased by 2.8 percentage points and sleep problems by 2 points (INE, 2021). News media, as the main information source for contemporary societies, did not merely report on this crisis — they actively constructed the frames through which the public understood it (Entman, 1993).
+
+## Methodology
+
+This study adapts the LISBETH computational framework (Prof. Alejandro Martínez-Mingo, IE University) to build a three-phase analytical pipeline:
+
+1. **Data Harvesting**: A "day-by-media" GDELT strategy harvested 53,055 COVID-19 articles from 9 Spanish outlets, filtered to 2,156 mental health-related articles.
+2. **NLP Infrastructure**: BETO (Spanish BERT) + Domain-Adaptive Pretraining on the MH-strict corpus, producing 7,535 contextual embeddings across 13 normalized keywords.
+3. **Subspace Analysis**: SVD-based semantic subspace construction over 11 rolling 3-month windows, with Grassmannian drift, Shannon entropy, and anchor projections (Functional, Social, Affective).
+
+## Key Findings
+
+- **Optimal Configuration**: DAPT + Penultimate layer + Corrected embeddings was validated as the best analytical configuration through systematic comparison.
+- **Framing Trajectory**: Discourse evolved from an initial **Affective** shock (Spring 2020), through a **Social** peak during the Second Wave (Autumn 2020), to **Functional** institutionalization (Winter 2020–2021).
+- **Semantic Drift**: Maximum structural change occurred not at the lockdown onset, but at the transition to the Second Wave (September 2020).
+- **Entropy**: A U-shaped trajectory — high ambiguity during lockdown, normalization through summer, then renewed complexity with later waves.
+- **Subspace Superiority**: Subspace projections are mathematically invariant under anisotropy correction, while centroid-based methods are contaminated by geometric noise.
+
+## Supervised by
+Prof. Alejandro Martínez-Mingo — IE University, School of Science & Technology

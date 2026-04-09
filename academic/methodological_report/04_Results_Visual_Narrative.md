@@ -1,30 +1,69 @@
-# 4. Narrativa Visual de Resultados
+# Results — Visual Narrative
 
-La aplicación del pipeline matemático sobre el corpus de GDELT (2019-2023) revela patrones claros en la evolución semántica de Yape.
+The application of the semantic subspace pipeline over the Spanish COVID-19 mental health corpus (March 2020 – March 2021) reveals clear, interpretable patterns in the evolution of media framing.
 
-## 4.1 La "Deriva Semántica" (Drift)
+## Optimal Configuration
 
-El siguiente gráfico muesta la distancia de Grassmann ($d(S_t, S_{t-1})$) entre ventanas temporales consecutivas. Picos altos indican rupturas estructurales en el significado.
+Through systematic validation (see thesis Section 4.2), the following configuration was selected:
 
-![Semantic Drift](assets/semantic_drift.png)
+> **Winner: DAPT + Penultimate Layer + Corrected Embeddings**
 
-### Interpretación de Hitos
-*   **Pico 2020 (Pandemia)**: Se observa un salto significativo correlacionado con el inicio del aislamiento social obligatorio. Yape deja de ser una curiosidad tecnológica para convertirse en una herramienta de supervivencia (pagos sin contacto).
-*   **Pico 2021 (Bonos)**: La distribución de bonos del estado a través de billeteras digitales reconfigura nuevamente el espacio, asociando la marca con "subsidio" y "gobierno".
+This configuration provides:
+- **Parsimony**: Low entropy and intrinsic dimensionality (k ≈ 45–55), capturing semantic core without syntactic noise
+- **Temporal stability**: Tight clustering of data points throughout the year
+- **Geometric robustness**: Mathematically invariant under anisotropy correction
 
-## 4.2 Evolución de la Complejidad (Entropía)
+## Semantic Drift
 
-¿Se ha vuelto el significado de Yape más simple o más complejo?
+The Grassmannian distance between consecutive windows reveals that structural change is **not monotonic**:
 
-![Semantic Entropy](assets/semantic_entropy.png)
+- **Lowest drift**: March → April 2020 (lockdown onset — discourse was uniformly emotional)
+- **Maximum drift**: September 2020 — end of "New Normal" and beginning of Second Wave
+- **Secondary peak**: November 2020 — autumn turbulence
 
-Una tendencia ascendente constante en la entropía de los valores singulares sugiere que el término acumula nuevas acepciones (polisemia) sin perder las anteriores. Yape es simultáneamente "app", "verbo", "trabajo" y "sistema".
+This partly qualifies H2: the most dramatic shifts in meaning appear not at the lockdown start, but when society was obliged to return from summer to harsh pandemic conditions.
 
-## 4.3 Proyecciones Temáticas
+## Shannon Entropy
 
-Proyección del centroide de Yape sobre los ejes ortogonalizados de **Funcionalidad**, **Afectividad** y **Socialidad**.
+A clear **U-shaped pattern** confirmating H3:
 
-![Projection Heatmap](assets/projection_heatmap.png)
+- **Peak entropy**: Spring 2020 (National Lockdown) — high semantic ambiguity
+- **Minimum**: September 2020 — discourse normalization during summer
+- **Rise**: October 2020 – January 2021 — new complexity from Second/Third Waves, vaccine discourse
 
-Se aprecia cómo la dimensión de **Socialidad** gana intensidad progresivamente, validando la hipótesis de que la marca ha permeado estratos sociales no bancarizados, trascendiendo su función transaccional pura.
-Entraremos en analisis más profundos en los notebooks que siguen. 
+## Anchor Projections (Subspace)
+
+Three distinct evolutionary phases emerge across the semantic dimensions:
+
+### Affective Dimension (Crisis & Emotion)
+- **Maximum** during National Lockdown (March–June 2020): emotionally charged coverage (fear, panic, trauma)
+- Massive drop in summer 2020
+- Volatile peaks during autumn/winter: "pandemic fatigue" and emotional response to later waves
+
+### Social Dimension (Isolation & Community)
+- **Most significant structural change** in the entire dataset
+- Relatively important during first confinement
+- Lowest during summer 2020 (partial return to public life)
+- **Extraordinary peak** September–November 2020: Second Wave, return to school/work, selective confinements, social tension
+
+### Functional Dimension (Institutions & Healthcare)
+- **U-shaped trajectory**
+- High during initial State of Alarm (hospital collapses, emergency response)
+- Dip during "New Normal" summer
+- Steady climb October 2020 → early 2021: vaccine rollouts, systemic protocols, sustained public health management
+
+## Semantic Trajectory
+
+The Functional-Affective trajectory plot reveals a clear **rotational pattern**:
+- Early windows (March–May 2020): High-Affective, Low-Functional quadrant
+- Progressive migration toward High-Functional, Low-Affective region
+- Loops during Second Wave show the sensitivity of the subspace method to real-world events
+- The shift in media framing is not one-directional but a **dynamic social process**
+
+## Temporal Narrative Epochs
+
+| Phase | Period | Dominant Frame | Characteristics |
+|---|---|---|---|
+| **Shock** | Spring 2020 | Affective | High entropy, reactionary discourse, mental health as acute individualized trauma |
+| **Social Peak** | Autumn 2020 | Social | Second Wave, community friction, localized lockdowns, social tension |
+| **Institutionalization** | Late 2020–Early 2021 | Functional | Chronic crisis management, vaccine discourse, systematic protocols |

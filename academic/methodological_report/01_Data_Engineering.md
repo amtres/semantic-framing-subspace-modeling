@@ -1,27 +1,47 @@
-# 1. Ingeniería de Datos y Adquisición
+# Data Engineering
 
-La calidad del análisis semántico depende de la integridad del corpus subyacente. Esta sección detalla las estrategias implementadas para garantizar la completitud y limpieza de los datos.
+## Data Source
 
-## 1.1 Estrategia de Cosecha (Harvesting) con GDELT
+The primary data source is **GDELT** (Global Database of Events, Language, and Tone), a massive open-source database monitoring worldwide news in over 100 languages. GDELT identifies actors, locations, themes, and emotions every 15 minutes.
 
-Se utilizó la API de GDELT Project para identificar noticias relevantes. Para mitigar las limitaciones de la API (que a menudo trunca resultados en rangos temporales amplios), se implementó una estrategia de **Daily Chunking**.
+## Harvesting Strategy
 
-### Daily Chunking vs. Rango Completo
-En lugar de solicitar `2019-01-01` a `2023-01-01` en una sola query, el script `Lisbeth News Harvester` divide el rango objetivo en segmentos de 24 horas y ejecuta una consulta independiente para cada día.
+A **"day-by-media"** harvesting strategy was employed. Unlike bulk scraping, this micro approach iterates through each day and each media outlet individually, circumventing API rate limits and achieving near-100% completeness. The strategy also implements automatic fallback mechanisms and "soft 404" protocols.
 
-*   **Impacto**: Esta estrategia recuperó un estimado de **3x más documentos** en comparación con queries mensuales o anuales, capturando eventos de menor visibilidad global pero alta relevancia local.
+- **Period**: March 2020 – March 2021 (13 months)
+- **Outlets**: 9 Spanish publishers (see Appendix B in thesis)
+- **Country filter**: Spain (`sourceCountry:SP`)
+- **COVID-19 keywords**: `covid`, `coronavirus`, `pandemia`
+- **Harvesting time**: ~5 hours per month
 
-## 1.2 Manejo de Renderizado Client-Side (JS)
+## Two-Stage Filtering
 
-Un desafío crítico fue la extracción de texto de medios modernos (e.g., *La República*) que utilizan frameworks reactivos, devolviendo códigos de estado `200 OK` pero cuerpos HTML vacíos o con *placeholders* en una petición `GET` estándar.
+### Stage 1 — COVID-19 Broad Filter
+Applied using 3 COVID-19 keywords, yielding **53,055 unique articles**.
 
-### Solución Implementada
-Se integró una solución híbrida:
-1.  **Petición Estándar (Requests)**: Rápida, para sitios estáticos.
-2.  **Fallback Emulado**: Para dominios identificados como problemáticos o respuestas sospechosamente cortas, el sistema utiliza un *header* de navegador completo y manejo de cookies mediante `curl_cffi` para simular un usuario real y activar la renderización del servidor.
+### Stage 2 — Mental Health Strict Filter
+A narrower filter using mental health-specific keywords. An initial broad keyword list produced excessive noise (e.g., "agotamiento" in sports articles). A strict version was developed focusing only on directly relevant terms:
 
-## 1.3 Limpieza y Preprocesamiento
+> `salud mental`, `ansiedad`, `depresion`, `estrés`, `suicidio`, `psicologo`, `terapia`, `autolesion`, `trastorno mental`, `psiquiatra`, `psiquiatria`, `bienestar emocional`, `salud emocional`
 
-El texto crudo se somete a un pipeline de normalización:
-*   **Eliminación de Boilerplate**: Scripts, estilos CSS y pies de página recurrentes.
-*   **Filtro de Relevancia**: Se descartan artículos donde la mención a "Yape" es, en realidad, un falso positivo (e.g., errores de OCR o palabras similares sin contexto semántico válido).
+This reduced the corpus to **2,156 unique articles** (4.1% of the COVID-19 corpus).
+
+## Filter Script Evolution
+
+| Version | Script | Notes |
+|---|---|---|
+| v1 | `filter_mh.py` | ❌ Broke — didn't parse CSV structure |
+| v2 | `filter_mh_csv.py` | Worked but used broad keywords, too many false positives |
+| v3 | `filter_mh_csv_v2.py` | Strict keywords + COVID co-occurrence |
+| **v4 (FINAL)** | `filter_mh_csv_v2_cli.py` | Added `--month`/`--year` CLI args for production |
+
+## Operational Adjustments
+
+- **La Vanguardia**: Temporarily paused between May–July 2020 due to harvesting instability. Resumed in August 2020. This introduces a temporal gap for this publisher but does not affect overall corpus trends.
+- **Data Cleaning**: Minimal, given the robustness of the GDELT extraction process.
+
+## Output
+
+- **Raw data**: `data/raw/spain_covid_broad_{YYYY-MM}.csv` (13 monthly files)
+- **Filtered data**: `data/interim/filters/mh_v2_strict_covidOK/` (13 monthly filtered CSVs)
+- **Merged dataset**: `spain_covidMHstrict_2020-03_2021-03_ALL.csv` (15.4 MB, used for DAPT)

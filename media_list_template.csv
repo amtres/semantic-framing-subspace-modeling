@@ -1,5 +1,19 @@
 domain,type,active,rss_url,selector_body
-elcomercio.pe,national,true,https://elcomercio.pe/arc/outboundfeeds/rss/,div#contenido;div[itemprop='articleBody']
-larepublica.pe,national,true,https://larepublica.pe/rss/,div.story-content;div.content-body
-gestion.pe,financial,true,https://gestion.pe/arc/outboundfeeds/rss/,div.story-contents;section.article-body
-rpp.pe,multimedia,true,https://rpp.pe/feed,
+# Media List Template — Expected Format
+# ──────────────────────────────────────────────────────
+#   domain        : Base domain of the outlet (e.g., elpais.com)
+#   type          : Outlet category: national | digital | wire | regional
+#   active        : true/false — whether to include in harvesting
+#   rss_url       : RSS feed URL (optional, used by RSS collector)
+#   selector_body : CSS selector(s) for article body extraction (semicolon-separated)
+#
+# Example entries (Spanish outlets used in TFG research):
+elpais.com,national,true,,div.article_body;div.a_b
+elmundo.es,national,true,,div.ue-l-article__body
+lavanguardia.com,national,true,,div.ArticleMainContent
+eldiario.es,digital,true,,div.article-page__body-row
+elconfidencial.com,digital,true,,div.news-body-center
+20minutos.es,national,true,,div.article-body
+publico.es,digital,true,,div.article-text
+abc.es,national,true,,div.article-module__content
+larazon.es,national,true,,div.article-main__content

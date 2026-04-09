@@ -206,7 +206,7 @@ def _extract_selectors(html: str, domain: str) -> str | None:
     return None
 
 def _extract_legacy_heuristics(html: str) -> str | None:
-    """Fallback actual basado en reglas personalizadas para Lisbeth."""
+    """Fallback actual basado en reglas personalizadas para el harvester."""
     try:
         soup = BeautifulSoup(html, "lxml")
         for tag_name in _REMOVABLE_TAGS:

@@ -6,7 +6,7 @@ import torch
 import numpy as np
 from typing import List, Dict, Generator, Optional
 from tqdm import tqdm
-from src.nlp.model import LisbethModel
+from src.nlp.model import SemanticModel
 
 logger = logging.getLogger(__name__)
 
@@ -173,7 +173,7 @@ class EmbeddingWorker:
     """
     Step 3: Extracts contextual embeddings.
     """
-    def __init__(self, baseline_model: LisbethModel, dapt_model: LisbethModel):
+    def __init__(self, baseline_model: SemanticModel, dapt_model: SemanticModel):
         self.baseline_model = baseline_model
         self.dapt_model = dapt_model
 
@@ -184,7 +184,7 @@ class EmbeddingWorker:
         # We process simple loop here for clarity, but ideally we batch the inference.
         # Given "One row = one occurrence", let's do inference on the single sentence context.
         # Optimization: Group by sentence? 
-        # For now, simplistic implementation: predict one by one (or rely on LisbethModel batching if we add it).
+        # For now, simplistic implementation: predict one by one (or rely on SemanticModel batching if we add it).
         # We will assume process_batch receives a list, we can batch-tensor them.
         
         if not batch_occurrences:
@@ -245,7 +245,7 @@ class EmbeddingWorker:
             new_occ = occ.copy()
             
             for variant_name, model_obj in [("baseline", self.baseline_model), ("dapt", self.dapt_model)]:
-                # Use the helper we'll add to LisbethModel, or do it here.
+                # Use the helper we'll add to SemanticModel, or do it here.
                 # Doing it here ensures extraction logic is self-contained.
                 
                 # Tokenize (single)
@@ -358,8 +358,8 @@ class PipelineOrchestrator:
     """
     def __init__(self, baseline_model_name, dapt_model_name, keywords: List[str] = None):
         logger.info("Initializing Pipeline Orchestrator...")
-        self.baseline_model = LisbethModel(model_name=baseline_model_name)
-        self.dapt_model = LisbethModel(model_name=dapt_model_name)
+        self.baseline_model = SemanticModel(model_name=baseline_model_name)
+        self.dapt_model = SemanticModel(model_name=dapt_model_name)
         
         self.expander = OccurrenceExpander(keywords=keywords)
         self.worker = EmbeddingWorker(self.baseline_model, self.dapt_model)

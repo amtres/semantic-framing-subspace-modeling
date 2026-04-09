@@ -1,4 +1,4 @@
-"""Punto de entrada de línea de comandos para Lisbeth News Harvester."""
+"""Punto de entrada de línea de comandos para News Harvester."""
 
 from __future__ import annotations
 
