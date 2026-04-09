@@ -1,213 +1,250 @@
-# LISBETH
-## Análisis Computacional de la Representación Mediática mediante Subespacios Semánticos Dinámicos
+# LISBETH — COVID-19 & Mental Health Media Framing in Spain
 
-**Laboratorio - Máster en Metodología de las Ciencias del Comportamiento y de la Salud | UNED**
-* **Profesor**: Alejandro Martínez-Mingo
-* **Proyecto**: `LISBETH`
+## Computational Analysis of Media Representation through Dynamic Semantic Subspaces
 
----
-
-## Descripción del Proyecto
-
-**Lisbeth** es un sistema de investigación computacional ("Laboratorio") diseñado para analizar la evolución semántica de conceptos en prensa. El sistema combina técnicas avanzadas de **NLP (Modelos Transformadores Adaptados al Dominio)** con **Sociología Digital** para cuantificar cómo un concepto concreto evoluciona en el tiempo. Aunque desarrollado inicialmente para el contexto peruano, la arquitectura es **agnóstica al idioma y país**, permitiendo experimentos en inglés (ej. "Lockdown" en UK), español, o cualquier otro idioma soportado por modelos Hugging Face.
-
-El núcleo metodológico reside en la corrección de la **Anisotropía** del espacio vectorial y el análisis de **Subespacios Semánticos** dinámicos, permitiendo medir matemáticamente conceptos abstractos como la "Deriva Semántica" y la "Proyección Sociológica".
+> **Final Degree Project (TFG) — 4th Year**
+>
+> This project adapts the [LISBETH framework](https://github.com/original-repo) (originally developed by Prof. Alejandro Martínez-Mingo at UNED for a Master's programme) to a new research domain: **the evolution of mental health framing in Spanish mainstream press during the COVID-19 pandemic (2020–2021).**
 
 ---
 
-## Arquitectura y Fases del Proyecto
+## About This Project
 
-El sistema se orquesta mediante una CLI maestra: `pipeline_manager.py`.
+This repository is a **fork and adaptation** of the LISBETH ("Laboratorio") system — a computational research pipeline for analysing the semantic evolution of concepts in news media. The original system was designed to study how the Peruvian mobile wallet *Yape* was represented in press over time. This fork repurposes the entire pipeline for a different research question:
 
-### Fase 1: Data Harvesting (Recolector Granular)
-*Infraestructura de recolección de noticias resiliente.*
+> **How did Spanish newspapers frame mental health during the COVID-19 pandemic, and how did that framing evolve over time?**
 
-*   **Estrategia "Day x Media"**: A diferencia de scrapers tradicionales que hacen consultas masivas, Lisbeth itera **día por día** y **medio por medio**. Esto bypass-ea las limitaciones de retorno de GDELT (max 250 registros) y asegura una completitud histórica cercana al 100%.
-*   **Fuentes Híbridas**: GDELT (primaria), Google News (backup), RSS (tiempo real).
-*   **Resiliencia**:
-    *   Manejo de "Soft 404s" y contenido renderizado por JS (Client-Side) mediante selectores CSS específicos por dominio (`src/news_harvester/domains.py`).
-    *   Fallback automático a la librería `trafilatura` para extracción de texto limpio.
+The system combines **Transformer-based NLP** (Domain-Adaptive Pretraining + contextual embeddings) with **Sociological Framing Theory** to quantitatively track how abstract concepts like *anxiety*, *depression*, *isolation*, or *therapy* shift in meaning across time windows in the press.
 
-### Fase 2: Infraestructura NLP
-*Transformación de texto en tensores matemáticos ajustados.*
+### Key Adaptations in This Fork
+
+| Aspect | Original (LISBETH) | This Project (TFG) |
+|---|---|---|
+| **Research target** | "Yape" (Peruvian fintech brand) | COVID-19 × Mental Health framing |
+| **Country & press** | Peru (El Comercio, Gestión, etc.) | Spain (El País, El Mundo, ABC, La Vanguardia, etc.) |
+| **Keywords** | `Yape`, `Yapear` | `salud mental`, `ansiedad`, `depresión`, `suicidio`, `estrés`, `terapia`, etc. |
+| **Anchor dimensions** | Financial, Community, Security | **Functional** (clinical services, treatment), **Social** (isolation, family, domestic violence), **Affective** (anxiety, fear, depression, trauma) |
+| **Time span** | 2019–2023 | March 2020 – March 2021 (COVID-19 first wave and aftermath) |
+| **Language models** | Spanish: RoBERTa-BNE, BETO | Same (language-agnostic architecture) |
+
+---
+
+## How It Works
+
+The system is orchestrated through a single master CLI: `pipeline_manager.py`.
+
+### Phase 1 — Data Harvesting (Granular Collector)
+
+*Resilient news collection infrastructure.*
+
+- **"Day × Media" strategy**: Unlike traditional scrapers that make bulk queries, LISBETH iterates **day by day** and **outlet by outlet**. This bypasses GDELT's return cap (max 250 records) and ensures near-complete historical coverage.
+- **Hybrid sources**: GDELT (primary), Google News (backup), RSS (real-time).
+- **Resilience**:
+  - Handles "Soft 404s" and JS-rendered (client-side) content through domain-specific CSS selectors (`src/news_harvester/domains.py`).
+  - Automatic fallback to `trafilatura` for clean text extraction.
+
+### Phase 2 — NLP Infrastructure
+
+*Transforming text into calibrated mathematical tensors.*
 
 #### 2.1 Model Management
-El sistema soporta cualquier modelo de Hugging Face, pero está optimizado para modelos monolingües en español:
-*   **`PlanTL-GOB-ES/roberta-large-bne`**: SOTA (State of the Art) entrenado por la Biblioteca Nacional de España.
-*   **`dccuchile/bert-base-spanish-wwm-uncased`** (BETO): Alternativa robusta y ligera.
+The system supports any Hugging Face model, optimised for monolingual Spanish models:
+- **`PlanTL-GOB-ES/roberta-large-bne`**: SOTA model trained by Spain's National Library.
+- **`dccuchile/bert-base-spanish-wwm-uncased`** (BETO): Robust and lightweight alternative.
 
 #### 2.2 DAPT (Domain-Adaptive Pretraining)
-Antes de extraer embeddings, el modelo base se somete a un "re-entrenamiento" ligero (**DAPT**) utilizando el corpus recolectado en Fase 1.
-*   **Por qué**: Un modelo genérico no entiende ciertos términos concretos del contexto del estudio. Por ejemplo, que "Yapear" es un verbo o que "Plin" es un competidor, no un sonido.
-*   **Parámetros**:
-    *   MLM (Masked Language Modeling): Se ocultan aleatoriamente palabras del corpus peruano y el modelo aprende a predecirlas.
-    *   Epochs: Configurable (default 3).
+Before extracting embeddings, the base model is fine-tuned (**DAPT**) on the corpus collected in Phase 1.
+- **Why**: A generic model may not capture domain-specific semantics. For instance, the evolving connotations of "confinamiento" (lockdown) or "ERTE" (furlough scheme) in Spanish COVID-19 discourse.
+- **Parameters**:
+  - MLM (Masked Language Modeling): Words from the collected corpus are randomly masked, and the model learns to predict them.
+  - Epochs: Configurable (default 3).
 
-#### 2.3 Extracción de Embeddings Contextuales
-Para cada mención de la palabra clave (ej. "Yape"):
-1.  **Tokenización**: Se localiza la palabra en la oración. Si se fragmenta en sub-tokens (`['Yap', '##ear']`), se aplica **Mean Pooling** para obtener un único vector.
-2.  **Layer Strategy**: Se extraen las activaciones ocultas.
-    *   **`penultimate`**: La capa anterior a la última (mejor para representaciones geométricas generales).
-    *   **`last4_concat`**: Concatenación de las últimas 4 capas (4096 dims para RoBERTa-large), capturando matices sintácticos y semánticos profundos.
+#### 2.3 Contextual Embedding Extraction
+For each mention of a target keyword (e.g., "salud mental"):
+1. **Tokenisation**: The keyword is located in the sentence. If fragmented into sub-tokens, **Mean Pooling** is applied to produce a single vector.
+2. **Layer Strategy**: Hidden activations are extracted.
+   - **`penultimate`**: The second-to-last layer (best for general geometric representations).
+   - **`last4_concat`**: Concatenation of the last 4 layers (4096 dims for RoBERTa-large), capturing deep syntactic and semantic nuances.
 
-### Fase 3: Análisis de Subespacios (El "Laboratorio Matemático")
-*Donde ocurre la magia sociológica.*
+### Phase 3 — Subspace Analysis (The "Mathematical Laboratory")
+
+*Where the sociological insights emerge.*
 
 #### 3.1 Dual Anisotropy Correction
-Los modelos de lenguaje sufren de "Anisotropía": todos los vectores tienden a ocupar un cono estrecho en el espacio, distorsionando las distancias (coseno).
-Lisbeth implementa un protocolo estricto de comparación:
-1.  **RAW (Crudo)**: Embeddings tal cual salen del modelo.
-2.  **CORRECTED (Corregido)**: Se calcula el **Vector Medio Global** ($\mu_{global}$) de todo el corpus y se resta de cada embedding ($v' = v - \mu_{global}$). Esto "centra" la nube de puntos y revela la verdadera estructura semántica interna. Otros tipos de corrección de la Anisontropía se aplicarán en futuras actualizaciones del proyecto.
+Language models suffer from **anisotropy**: all vectors tend to occupy a narrow cone in space, distorting cosine distances.
+LISBETH implements a strict comparison protocol:
+1. **RAW**: Embeddings as-is from the model.
+2. **CORRECTED**: The **Global Mean Vector** (μ_global) of the entire corpus is computed and subtracted from each embedding (v' = v − μ_global). This "centres" the point cloud and reveals the true internal semantic structure.
 
-#### 3.2 Subespacios Dinámicos
-Se agrupan los embeddings en **Ventanas Deslizantes** (ej. Trimestrales) y se aplica **SVD (Singular Value Decomposition)** para hallar los ejes principales de significado en ese periodo.
+#### 3.2 Dynamic Subspaces
+Embeddings are grouped into **Sliding Windows** (e.g., quarterly) and **SVD (Singular Value Decomposition)** is applied to find the principal axes of meaning in each period.
 
-#### 3.3 Métricas
-*   **Semantic Drift**: Distancia Grassmanniana entre el subespacio del tiempo $t$ y el tiempo $t+1$. Mide cuánto ha cambiado el significado.
-*   **Entropía**: Dispersión de los valores singulares. Alta entropía = Significado difuso/polisémico.
-*   **Proyección de Anclas**: Se definen vectores teóricos (ej. "Seguridad", "Comunidad") y se mide matemáticamente cuánto se acerca el concepto objetivo a ellos.
+#### 3.3 Metrics
+- **Semantic Drift**: Grassmannian distance between subspace at time *t* and time *t+1*. Measures how much meaning has changed.
+- **Entropy**: Dispersion of singular values. High entropy = diffuse / polysemous meaning.
+- **Anchor Projection**: Theoretical vectors are defined (e.g., "therapy", "isolation", "anxiety") and the system mathematically measures how close the target concept moves towards each anchor across time.
 
-### Fase 4: Reportes Automáticos
-Generación de Notebooks y Gráficos (Heatmaps, Series Temporales) que comparan visualmente las condiciones RAW vs CORRECTED para validar los hallazgos.
+In this project, three anchor dimensions are used:
+
+| Dimension | Description | Example anchors |
+|---|---|---|
+| **Functional** | Clinical services, treatment access, work–life burden | *psicólogo, terapia, ERTE, teletrabajo, tratamiento* |
+| **Social** | Relationships, isolation, community support, domestic violence | *aislamiento, familia, violencia, duelo, solidaridad* |
+| **Affective** | Emotional states and psychological symptoms | *ansiedad, depresión, miedo, trauma, suicidio* |
+
+### Phase 4 — Automated Reports
+Generates Jupyter Notebooks and visualisations (heatmaps, time series) that visually compare RAW vs CORRECTED conditions to validate findings.
 
 ---
 
-## Guía Exhaustiva de Parámetros y Ejecución
+## Execution Guide
 
-El script `pipeline_manager.py` es el punto de entrada único.
+The script `pipeline_manager.py` is the single entry point.
 
-### 0. Configuración Inicial
+### 0. Initial Setup
+
 ```bash
-# Definir lista de medios (disponible en repo)
-cat data/media_list.csv
+# Install dependencies
+pip install -r requirements.txt
+
+# Verify the media list
+cat data/metadata/media_lists/media_list.csv
 # name,domain,type
-# elcomercio,elcomercio.pe,national
+# elpais,elpais.com,national
+# elmundo,elmundo.es,national
 # ...
 ```
 
-### 1. Descarga de Modelos
-Pre-descarga los modelos para evitar latencia o errores de red durante el proceso.
+### 1. Download Models
+
+Pre-download models to avoid latency or network errors during processing.
+
 ```bash
 python pipeline_manager.py phase2 download-models \
     --models "dccuchile/bert-base-spanish-wwm-uncased" "PlanTL-GOB-ES/roberta-large-bne"
 ```
 
-### 2. Fase 1: Recolección (Harvesting)
-**Parámetros Clave**:
-*   `--pipeline granular`: (Implícito en lógica interna) Activa el loop "Day x Media".
-*   `--media-list`: Ruta al CSV de medios. Si se omite, busca en todo GDELT (menos exhaustivo).
-*   `--keyword`: Palabras a rastrear.
+### 2. Phase 1: Harvesting
+
+**Key Parameters**:
+- `--keyword`: Words to track.
+- `--media-list`: Path to the media CSV. If omitted, searches all of GDELT (less exhaustive).
+- `--country`: GDELT country code (default: SP for Spain in this project).
 
 ```bash
-# Ejemplo Perú (Default)
+# Spain — COVID & Mental Health
 python pipeline_manager.py phase1 \
-    --keyword "Yape" "Yapear" \
-    --from 2020-01-01 --to 2021-01-01 \
-    --media-list data/media_list.csv \
-    --output data/raw_news_2020.csv
-
-# Ejemplo Reino Unido (UK)
-python pipeline_manager.py phase1 \
-    --keyword "lockdown" \
-    --from 2020-03-01 --to 2020-06-30 \
-    --country UK \
-    --media-list english_experiment/media_list.csv \
-    --output english_experiment/news_lockdown.csv
+    --keyword "salud mental" "ansiedad" "depresión" "suicidio" \
+    --from 2020-03-01 --to 2021-03-31 \
+    --country SP \
+    --media-list data/metadata/media_lists/media_list.csv \
+    --output data/raw/spain_covid_mh.csv
 ```
 
-### 3. Fase 2: Procesamiento NLP
+### 3. Phase 2: NLP Processing
 
-#### Paso 3.1: DAPT (Opcional pero Recomendado)
-Entrena el modelo base sobre tu data.
-*   `--model`: Modelo base de HuggingFace.
-*   `--epochs`: 3 suele ser suficiente para adaptación ligera.
+#### Step 3.1: DAPT (Optional but Recommended)
+Fine-tune the base model on your data.
 
 ```bash
 python pipeline_manager.py phase2 dapt \
-    --data data/raw_news_2020.csv \
-    --output models/lisbeth-adapted-2020 \
-    --model "dccuchile/bert-base-spanish-wwm-uncased" \
+    --data data/interim/datasets/spain_covidMHstrict_2020-03_2021-03_ALL.txt \
+    --output models/roberta-adapted-covid-mh \
+    --model "PlanTL-GOB-ES/roberta-large-bne" \
     --epochs 3
 ```
 
-#### Paso 3.2: Extracción
-Genera el dataset vectorial.
-*   `--dapt_model`: Ruta al modelo entrenado en 3.1.
-*   `--model`: Modelo base (se usa para generar la línea base comparativa).
+#### Step 3.2: Embedding Extraction
+Generate the vector dataset.
 
 ```bash
 python pipeline_manager.py phase2 extract \
-    --data_dir data/raw_news_dir_2020 \
-    --output data/embeddings_2020.csv \
-    --model "dccuchile/bert-base-spanish-wwm-uncased" \
-    --dapt_model models/lisbeth-adapted-2020
+    --data_dir data/raw \
+    --output data/interim/embeddings/embeddings_covid_mh.parquet \
+    --model "PlanTL-GOB-ES/roberta-large-bne" \
+    --dapt_model models/roberta-adapted-covid-mh \
+    --keywords "salud mental" "ansiedad" "depresión"
 ```
 
-### 4. Fase 3: Análisis de Subespacios
-Ejecuta el cálculo masivo de métricas. Soporta configuración dinámica de modelos y anclas.
-*   `--anchors`: JSON con definiciones de dimensiones (opcional).
-*   `--baseline-model`: Modelo base para alineación.
-*   `--dapt-model`: Modelo adaptado.
-*   `--window-months`: Tamaño de la ventana deslizante.
+### 4. Phase 3: Subspace Analysis
+
+Run the full metric computation. Supports dynamic model and anchor configuration.
 
 ```bash
-# Ejemplo estándar
 python pipeline_manager.py phase3 \
-    --input data/embeddings_2020.csv \
-    --output-dir results/analysis_2020
-
-# Ejemplo Avanzado (Experimento en Inglés / Otra Configuración)
-python pipeline_manager.py phase3 \
-    --input english_experiment/embeddings.csv \
-    --output-dir english_experiment/results \
-    --baseline-model "roberta-base" \
-    --dapt-model "english_experiment/models/dapt" \
-    --anchors "english_experiment/anchors.json" \
-    --window-months 1
+    --input data/interim/embeddings/embeddings_covid_mh.parquet \
+    --output-dir results/phase3_covid_mh \
+    --baseline-model "PlanTL-GOB-ES/roberta-large-bne" \
+    --dapt-model models/roberta-adapted-covid-mh \
+    --anchors data/metadata/anchors/dimensiones_ancla_mh_es_covid_FSA.json \
+    --window-months 3
 ```
 
-### 5. Fase 4: Reporte
-Genera el entregable final.
-*   Crea un Notebook de Jupyter (`report.ipynb`) en la carpeta de destino con todas las gráficas pre-cargadas.
+### 5. Phase 4: Report Generation
+
+Generate the final deliverables.
 
 ```bash
 python pipeline_manager.py phase4 \
-    --input results/analysis_2020/phase3_results.csv \
-    --output_dir results/final_report_2020
+    --input results/phase3_covid_mh/phase3_results.csv \
+    --output_dir results/final_report
 ```
 
 ---
 
-## 📂 Estructura del Repositorio
+## 📂 Repository Structure
 
 ```
 LISBETH/
-├── academic/               # Reportes y notebooks metodológicos
-├── data/                   # Datos (Gitignored, salvo media_list.csv)
-│   └── media_list.csv      # Catálogo de medios
-├── notebooks/              # Demos interactivos y EDA
-├── models/                 # Modelos (Gitignored)
-├── scripts/                # Scripts de utilidad
-├── tools/                  # Herramientas de diagnóstico
-├── src/                    # Código Fuente
-│   ├── news_harvester/     # Lógica scraping (Domains, Selectors)
-│   ├── nlp/                # Lógica DAPT y tensores
-│   ├── subspace_analysis/  # Matemáticas (SVD, Grassman, Procrustes)
-│   └── reporting/          # Lógica de generación de reportes
-├── pipeline_manager.py     # CLI Maestro
-└── README.md               # Este archivo
+├── academic/                   # Academic reports and methodological notebooks
+│   ├── INTRO_TFM.md            # Theoretical introduction (original study)
+│   └── model_comparison/       # Model comparison reports
+├── configs/                    # Pipeline configuration files
+│   └── tfg_phase1_plan.yml     # Phase 1 harvesting plan for this TFG
+├── data/                       # Data (Gitignored except metadata)
+│   ├── metadata/
+│   │   ├── anchors/            # Anchor dimension definitions (JSON)
+│   │   ├── keywords/           # Keyword lists (COVID, mental health, etc.)
+│   │   └── media_lists/        # Spanish media outlet catalogues
+│   ├── interim/
+│   │   ├── datasets/           # Harvested corpora
+│   │   └── embeddings/         # Extracted embeddings
+│   └── raw/                    # Raw harvested news articles
+├── models/                     # Trained/adapted models (Gitignored)
+├── notebooks/                  # Interactive demos, EDA, and analysis
+├── results/                    # Phase 3 & 4 outputs
+├── scripts/                    # Utility scripts
+├── tools/                      # Diagnostic tools
+├── src/                        # Source Code
+│   ├── news_harvester/         # Scraping logic (domains, selectors)
+│   ├── nlp/                    # DAPT, embedding extraction, anchors
+│   ├── subspace_analysis/      # Mathematics (SVD, Grassmann, Procrustes)
+│   ├── reporting/              # Report generation logic
+│   └── visualization/          # Plotting and visualisation utilities
+├── pipeline_manager.py         # Master CLI
+├── pyproject.toml              # Project metadata
+├── requirements.txt            # Python dependencies
+└── README.md                   # This file
 ```
 
-## Data storage and backups
+---
 
-- This project repository was cloned and published to a **private GitHub repository** to avoid losing progress.
-- We push and version-control **all project files except the large COVID broad dataset** outputs.
+## Data Storage & Backups
+
+- This project was cloned from the original LISBETH repository and published to a **private GitHub repository** to avoid losing progress.
+- All project files are pushed and version-controlled **except the large COVID broad dataset** outputs.
 - The **MH-strict dataset** is stored in this repository:
   - `data/interim/datasets/spain_covidMHstrict_2020-03_2021-03_ALL.txt`
 - The **COVID broad (ALL) dataset** is **not pushed to GitHub** (large files). It is backed up as a ZIP in **Google Drive** (TFG data backup folder).
-
-Notes:
-- Large harvesting outputs are ignored via `.gitignore` to prevent GitHub push issues (>100MB).
+- Large harvesting outputs are ignored via `.gitignore` to prevent GitHub push issues (>100 MB).
 
 ---
-**Lisbeth v2.0 - Enero 2026**
+
+## Credits
+
+- **LISBETH Framework**: Originally developed by [Prof. Alejandro Martínez-Mingo](https://www.uned.es) — Master's in Behavioural and Health Sciences Methodology, UNED.
+- **This Adaptation (TFG)**: Applies the LISBETH pipeline to the study of COVID-19 and mental health media framing in Spanish press.
+
+---
+
+**LISBETH v2.0 · Adapted for TFG · April 2026**
