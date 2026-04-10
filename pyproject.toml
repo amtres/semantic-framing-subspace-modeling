@@ -1,9 +1,12 @@
 [project]
-name = "lisbeth"
-version = "0.1.0"
-description = "Lisbeth: NLP Analysis System"
+name = "tfg-semantic-framing"
+version = "1.0.0"
+description = "TFG: Semantic Framing of Mental Health During COVID-19"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.8"
+authors = [
+    { name = "Alvaro Mengotti Medina", email = "[amedina.ieu2022@student.ie.edu]" }
+]
 dependencies = [
     "requests",
     "beautifulsoup4",
